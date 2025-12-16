@@ -1,4 +1,3 @@
-// App.tsx
 import React from "react";
 import "./App.css";
 import { FaVk, FaTelegramPlane, FaUserCircle, FaUser } from "react-icons/fa";

@@ -1,4 +1,3 @@
-// src/theme_js/Loops_js.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Loops_js.css";
