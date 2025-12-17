@@ -9,12 +9,17 @@ const LoopsJsPage: React.FC = () => {
     alert("Генерация задачи по теме 'Циклы (JS)'... Скоро будет настоящая ИИ-генерация!");
   };
 
+  const handleCheckSolution = () => {
+    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  };
+
   const handleBackClick = () => {
     navigate("/js/tema");
   };
 
   return (
-    <div className="loops-js-container">
+    <div className="lists-container">
+      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -112,6 +117,10 @@ for (let fruit of fruits) {
             className="code-input"
           ></textarea>
         </div>
+      {/* Оранжевая кнопка "Проверить решение" */}
+        <button className="check-btn" onClick={handleCheckSolution}>
+          ПРОВЕРИТЬ РЕШЕНИЕ
+        </button>
       </div>
     </div>
   );

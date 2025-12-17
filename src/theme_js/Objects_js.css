@@ -192,3 +192,36 @@
     padding: 10px 20px;
   }
 }
+
+/* Оранжевая кнопка "Проверить решение" */
+.right-panel {
+  position: relative;
+}
+
+.check-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: #e68a00;
+}
+
+@media (max-width: 768px) {
+  .check-btn {
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}

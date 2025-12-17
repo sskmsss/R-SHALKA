@@ -10,12 +10,18 @@ const ObjectsJsPage: React.FC = () => {
     alert("Генерация задачи по теме 'Объекты (JS)'... Скоро будет настоящая ИИ-генерация!");
   };
 
+  const handleCheckSolution = () => {
+    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  };
+
+
   const handleBackClick = () => {
     navigate("/js/tema");
   };
 
   return (
-    <div className="objects-js-container">
+    <div className="lists-container">
+      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -114,6 +120,10 @@ calculator.add(2, 3); // 5`}</code>
             className="code-input"
           ></textarea>
         </div>
+      {/* Оранжевая кнопка "Проверить решение" */}
+        <button className="check-btn" onClick={handleCheckSolution}>
+          ПРОВЕРИТЬ РЕШЕНИЕ
+        </button>
       </div>
     </div>
   );
