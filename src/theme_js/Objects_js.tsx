@@ -1,27 +1,43 @@
-// src/theme_js/Objects_js.tsx
-import React from "react";
+// theme_js/Objects_js.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Objects_js.css";
+import { generateTask } from "../services/taskService";
+import type { Task } from "../services/taskService";
 
 const ObjectsJsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [task, setTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateClick = () => {
-    alert("Генерация задачи по теме 'Объекты (JS)'... Скоро будет настоящая ИИ-генерация!");
+  const handleGenerateClick = async () => {
+    setIsLoading(true);
+    try {
+      const newTask = await generateTask("JavaScript", "objects");
+      console.log("Полученная задача:", newTask);
+      if (newTask) {
+        setTask(newTask);
+      } else {
+        alert("Не удалось сгенерировать задачу. Попробуйте позже.");
+      }
+    } catch (error) {
+      console.error("Ошибка при генерации задачи:", error);
+      alert("Произошла ошибка. Проверьте консоль (F12).");
+    }
+    setIsLoading(false);
   };
 
   const handleCheckSolution = () => {
     alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
   };
 
-
   const handleBackClick = () => {
     navigate("/js/tema");
   };
 
   return (
-    <div className="lists-container">
-      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
+    <div className="objects-js-container">
+      {/* Кнопка НАЗАД — в корне */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -93,24 +109,47 @@ calculator.add(2, 3); // 5`}</code>
           </p>
         </div>
 
-        <button className="generate-btn" onClick={handleGenerateClick}>
-          ГЕНЕРАЦИЯ ЗАДАЧИ
+        <button
+          className="generate-btn"
+          onClick={handleGenerateClick}
+          disabled={isLoading}
+        >
+          {isLoading ? "Генерация..." : "ГЕНЕРАЦИЯ ЗАДАЧИ"}
         </button>
       </div>
 
       <div className="right-panel">
         <h1>ЗАДАЧА</h1>
-        <div className="task-placeholder">
-          <p>
-            Напишите функцию <code>getUserInfo(user)</code>, которая принимает объект пользователя с полями <code>name</code> и <code>age</code> и возвращает строку вида: <code>"Анна, 25 лет"</code>.
-          </p>
-          <p>
-            Пример:
-            <pre className="code-example">
-              <code>{`getUserInfo({ name: "Иван", age: 30 }) → "Иван, 30 лет"`}</code>
-            </pre>
-          </p>
-        </div>
+
+        {task ? (
+          <div className="task-placeholder">
+            <h3>{task.title}</h3>
+            <p>{task.description}</p>
+
+            {task.example_input && task.example_output && (
+              <div className="task-examples">
+                <h4>Примеры:</h4>
+                <div className="example">
+                  <strong>Ввод:</strong> <code>{task.example_input}</code>
+                </div>
+                <div className="example">
+                  <strong>Вывод:</strong> <code>{task.example_output}</code>
+                </div>
+              </div>
+            )}
+
+            {task.hint && (
+              <div className="task-hint">
+                <h4>Подсказка:</h4>
+                <p>{task.hint}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="task-placeholder">
+            <p>Нажмите «Генерация задачи», чтобы получить новую задачу.</p>
+          </div>
+        )}
 
         <div className="code-editor">
           <h3>КОД</h3>
@@ -120,7 +159,8 @@ calculator.add(2, 3); // 5`}</code>
             className="code-input"
           ></textarea>
         </div>
-      {/* Оранжевая кнопка "Проверить решение" */}
+
+        {/* Оранжевая кнопка "Проверить решение" */}
         <button className="check-btn" onClick={handleCheckSolution}>
           ПРОВЕРИТЬ РЕШЕНИЕ
         </button>

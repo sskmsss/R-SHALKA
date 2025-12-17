@@ -1,13 +1,30 @@
 // themes_py/Array.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Array.css";
+import { generateTask } from "../services/taskService";
+import type { Task } from "../services/taskService";
 
 const ArrayPage: React.FC = () => {
   const navigate = useNavigate();
+  const [task, setTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateClick = () => {
-    alert("Генерация задачи по теме 'Массивы'... Скоро будет настоящая ИИ-генерация!");
+  const handleGenerateClick = async () => {
+    setIsLoading(true);
+    try {
+      const newTask = await generateTask("Python", "array");
+      console.log("Полученная задача:", newTask);
+      if (newTask) {
+        setTask(newTask);
+      } else {
+        alert("Не удалось сгенерировать задачу. Попробуйте позже.");
+      }
+    } catch (error) {
+      console.error("Ошибка при генерации задачи:", error);
+      alert("Произошла ошибка. Проверьте консоль (F12).");
+    }
+    setIsLoading(false);
   };
 
   const handleCheckSolution = () => {
@@ -15,17 +32,16 @@ const ArrayPage: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate("/tema"); // ← возвращаемся на страницу выбора тем
+    navigate("/tema");
   };
 
   return (
     <div className="array-container">
-      {/* Кнопка НАЗАД — в самом начале, как в Lists.tsx */}
+      {/* Кнопка НАЗАД — в корне, как в Lists.tsx */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
 
-      {/* Левая часть — база по теме */}
       <div className="left-panel">
         <h1>БАЗА ПО ВЫБРАННОЙ ТЕМЕ</h1>
         <h2>МАССИВЫ</h2>
@@ -76,22 +92,47 @@ for num in numbers:
           </p>
         </div>
 
-        <button className="generate-btn" onClick={handleGenerateClick}>
-          ГЕНЕРАЦИЯ ЗАДАЧИ
+        <button
+          className="generate-btn"
+          onClick={handleGenerateClick}
+          disabled={isLoading}
+        >
+          {isLoading ? "Генерация..." : "ГЕНЕРАЦИЯ ЗАДАЧИ"}
         </button>
       </div>
 
-      {/* Правая часть — задача */}
       <div className="right-panel">
         <h1>ЗАДАЧА</h1>
-        <div className="task-placeholder">
-          <p>
-            Напишите функцию, которая принимает массив чисел и возвращает сумму всех элементов.
-          </p>
-          <p>
-            Пример: <code>sum_array([1, 2, 3]) → 6</code>
-          </p>
-        </div>
+
+        {task ? (
+          <div className="task-placeholder">
+            <h3>{task.title}</h3>
+            <p>{task.description}</p>
+
+            {task.example_input && task.example_output && (
+              <div className="task-examples">
+                <h4>Примеры:</h4>
+                <div className="example">
+                  <strong>Ввод:</strong> <code>{task.example_input}</code>
+                </div>
+                <div className="example">
+                  <strong>Вывод:</strong> <code>{task.example_output}</code>
+                </div>
+              </div>
+            )}
+
+            {task.hint && (
+              <div className="task-hint">
+                <h4>Подсказка:</h4>
+                <p>{task.hint}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="task-placeholder">
+            <p>Нажмите «Генерация задачи», чтобы получить новую задачу.</p>
+          </div>
+        )}
 
         <div className="code-editor">
           <h3>КОД</h3>
@@ -102,7 +143,7 @@ for num in numbers:
           ></textarea>
         </div>
 
-        {/* Оранжевая кнопка "Проверить решение" */}
+        {/* Оранжевая кнопка */}
         <button className="check-btn" onClick={handleCheckSolution}>
           ПРОВЕРИТЬ РЕШЕНИЕ
         </button>

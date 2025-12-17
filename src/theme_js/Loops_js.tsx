@@ -1,12 +1,30 @@
-import React from "react";
+// theme_js/Loops_js.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Loops_js.css";
+import { generateTask } from "../services/taskService";
+import type { Task } from "../services/taskService";
 
 const LoopsJsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [task, setTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateClick = () => {
-    alert("Генерация задачи по теме 'Циклы (JS)'... Скоро будет настоящая ИИ-генерация!");
+  const handleGenerateClick = async () => {
+    setIsLoading(true);
+    try {
+      const newTask = await generateTask("JavaScript", "loops");
+      console.log("Полученная задача:", newTask);
+      if (newTask) {
+        setTask(newTask);
+      } else {
+        alert("Не удалось сгенерировать задачу. Попробуйте позже.");
+      }
+    } catch (error) {
+      console.error("Ошибка при генерации задачи:", error);
+      alert("Произошла ошибка. Проверьте консоль (F12).");
+    }
+    setIsLoading(false);
   };
 
   const handleCheckSolution = () => {
@@ -18,8 +36,8 @@ const LoopsJsPage: React.FC = () => {
   };
 
   return (
-    <div className="lists-container">
-      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
+    <div className="loops-js-container">
+      {/* Кнопка НАЗАД — в корне, как во всех страницах */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -31,7 +49,7 @@ const LoopsJsPage: React.FC = () => {
         <div className="theory-content">
           <p>
             <strong>Что такое циклы?</strong><br />
-            Циклы позволяют выполнять блок кода **многократно**, пока выполняется условие.
+            Циклы позволяют выполнять блок кода <strong>многократно</strong>, пока выполняется условие.
           </p>
 
           <p>
@@ -84,30 +102,47 @@ for (let fruit of fruits) {
           </p>
         </div>
 
-        <button className="generate-btn" onClick={handleGenerateClick}>
-          ГЕНЕРАЦИЯ ЗАДАЧИ
+        <button
+          className="generate-btn"
+          onClick={handleGenerateClick}
+          disabled={isLoading}
+        >
+          {isLoading ? "Генерация..." : "ГЕНЕРАЦИЯ ЗАДАЧИ"}
         </button>
       </div>
 
       <div className="right-panel">
         <h1>ЗАДАЧА</h1>
-        <div className="task-placeholder">
-          <p>
-            Напишите функцию <code>printNumbers(n)</code>, которая выводит в консоль все числа от 1 до <code>n</code>, но вместо чисел, кратных 3, выводит слово <code>"Fizz"</code>.
-          </p>
-          <p>
-            Пример:
-            <pre className="code-example">
-              <code>{`printNumbers(5);
-// Вывод:
-// 1
-// 2
-// Fizz
-// 4
-// 5`}</code>
-            </pre>
-          </p>
-        </div>
+
+        {task ? (
+          <div className="task-placeholder">
+            <h3>{task.title}</h3>
+            <p>{task.description}</p>
+
+            {task.example_input && task.example_output && (
+              <div className="task-examples">
+                <h4>Примеры:</h4>
+                <div className="example">
+                  <strong>Ввод:</strong> <code>{task.example_input}</code>
+                </div>
+                <div className="example">
+                  <strong>Вывод:</strong> <code>{task.example_output}</code>
+                </div>
+              </div>
+            )}
+
+            {task.hint && (
+              <div className="task-hint">
+                <h4>Подсказка:</h4>
+                <p>{task.hint}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="task-placeholder">
+            <p>Нажмите «Генерация задачи», чтобы получить новую задачу.</p>
+          </div>
+        )}
 
         <div className="code-editor">
           <h3>КОД</h3>
@@ -117,7 +152,8 @@ for (let fruit of fruits) {
             className="code-input"
           ></textarea>
         </div>
-      {/* Оранжевая кнопка "Проверить решение" */}
+
+        {/* Оранжевая кнопка "Проверить решение" */}
         <button className="check-btn" onClick={handleCheckSolution}>
           ПРОВЕРИТЬ РЕШЕНИЕ
         </button>
