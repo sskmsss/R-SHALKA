@@ -9,12 +9,17 @@ const LoopsPage: React.FC = () => {
     alert("Генерация задачи по теме 'Циклы'... Скоро будет настоящая ИИ-генерация!");
   };
 
+  const handleCheckSolution = () => {
+    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  };
+
   const handleBackClick = () => {
     navigate("/tema");
   };
 
   return (
-    <div className="loops-container">
+    <div className="lists-container">
+      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -101,6 +106,10 @@ while count < 3:
             className="code-input"
           ></textarea>
         </div>
+        {/* Оранжевая кнопка "Проверить решение" */}
+        <button className="check-btn" onClick={handleCheckSolution}>
+          ПРОВЕРИТЬ РЕШЕНИЕ
+        </button>
       </div>
     </div>
   );

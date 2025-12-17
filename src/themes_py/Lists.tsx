@@ -10,12 +10,17 @@ const ListsPage: React.FC = () => {
     alert("Генерация задачи по теме 'Списки'... Скоро будет настоящая ИИ-генерация!");
   };
 
+  const handleCheckSolution = () => {
+    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  };
+
   const handleBackClick = () => {
     navigate("/tema");
   };
 
   return (
     <div className="lists-container">
+      {/* Кнопка НАЗАД — в корне контейнера, как в образце */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -37,30 +42,30 @@ const ListsPage: React.FC = () => {
 
           <p>
             <strong>Пример создания:</strong><br />
-            ```python
-            fruits = ["яблоко", "банан", "апельсин"]
-            numbers = [1, 2, 3, 4]
-            mixed = [1, "текст", True]
-            ```
+            <pre className="code-example">
+              <code>{`fruits = ["яблоко", "банан", "апельсин"]
+numbers = [1, 2, 3, 4]
+mixed = [1, "текст", True]`}</code>
+            </pre>
           </p>
 
           <p>
             <strong>Основные операции:</strong><br />
-            - Доступ по индексу: `fruits[0]` → `"яблоко"`<br />
-            - Изменение: `fruits[1] = "груша"`<br />
-            - Добавление: `fruits.append("манго")`<br />
-            - Удаление: `fruits.pop()` или `del fruits[0]`<br />
-            - Длина: `len(fruits)`
+            - Доступ по индексу: <code>fruits[0]</code> → <code>"яблоко"</code><br />
+            - Изменение: <code>fruits[1] = "груша"</code><br />
+            - Добавление: <code>fruits.append("манго")</code><br />
+            - Удаление: <code>fruits.pop()</code> или <code>del fruits[0]</code><br />
+            - Длина: <code>len(fruits)</code>
           </p>
 
           <p>
             <strong>Полезные методы:</strong><br />
-            - `.append(x)` — добавить в конец<br />
-            - `.extend(iterable)` — добавить несколько элементов<br />
-            - `.insert(i, x)` — вставить по индексу<br />
-            - `.remove(x)` — удалить первое вхождение<br />
-            - `.sort()` — сортировать<br />
-            - `.reverse()` — развернуть
+            - <code>.append(x)</code> — добавить в конец<br />
+            - <code>.extend(iterable)</code> — добавить несколько элементов<br />
+            - <code>.insert(i, x)</code> — вставить по индексу<br />
+            - <code>.remove(x)</code> — удалить первое вхождение<br />
+            - <code>.sort()</code> — сортировать<br />
+            - <code>.reverse()</code> — развернуть
           </p>
 
           <p>
@@ -82,8 +87,12 @@ const ListsPage: React.FC = () => {
       <div className="right-panel">
         <h1>ЗАДАЧА</h1>
         <div className="task-placeholder">
-          <p>Напишите функцию, которая принимает список строк и возвращает только те, что длиннее 5 символов.</p>
-          <p>Пример: <code>filter_long(["hi", "hello", "world!"]) → ["hello", "world!"]</code></p>
+          <p>
+            Напишите функцию, которая принимает список строк и возвращает только те, что длиннее 5 символов.
+          </p>
+          <p>
+            Пример: <code>filter_long(["hi", "hello", "world!"]) → ["hello", "world!"]</code>
+          </p>
         </div>
 
         <div className="code-editor">
@@ -94,6 +103,11 @@ const ListsPage: React.FC = () => {
             className="code-input"
           ></textarea>
         </div>
+
+        {/* Оранжевая кнопка "Проверить решение" */}
+        <button className="check-btn" onClick={handleCheckSolution}>
+          ПРОВЕРИТЬ РЕШЕНИЕ
+        </button>
       </div>
     </div>
   );

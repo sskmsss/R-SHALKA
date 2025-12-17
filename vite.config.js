@@ -10,7 +10,7 @@ export default defineConfig({
     port: 5173,
     // Разрешаем ngrok-адрес
     allowedHosts: [
-      'krystin-unfrightening-nash.ngrok-free.dev' // ← Замени на свой реальный ngrok-адрес
+      'krystin-unfrightening-nash.ngrok-free.dev' 
     ]
   }
 })

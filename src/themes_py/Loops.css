@@ -193,3 +193,83 @@
   white-space: pre;
   line-height: 1.4;
 }
+
+/* Обязательно: контейнер должен быть relative */
+.lists-container {
+  position: relative;
+}
+
+/* Кнопка "Назад" — в левом верхнем углу всей страницы */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #1f2937;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .back-button {
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+  }
+}
+
+/* Стили для примеров кода */
+.code-example {
+  background: #f4f4f4;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  margin: 10px 0;
+  white-space: pre;
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+/* Оранжевая кнопка "Проверить решение" */
+.right-panel {
+  position: relative;
+}
+
+.check-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: #e68a00;
+}
+
+@media (max-width: 768px) {
+  .check-btn {
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}

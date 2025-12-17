@@ -164,17 +164,20 @@
   }
 }
 
-/* Кнопка НАЗАД — в правой части, перед заголовком */
+/* Кнопка НАЗАД — абсолютное позиционирование */
 .right-panel .back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
   background: none;
   border: none;
   font-size: 16px;
   color: #1f2937;
   cursor: pointer;
   padding: 8px 16px;
-  margin-bottom: 10px; /* отступ от заголовка */
   border-radius: 4px;
   transition: background-color 0.2s;
+  z-index: 10;
 }
 
 .right-panel .back-button:hover {
@@ -184,7 +187,33 @@
 /* Для адаптивности */
 @media (max-width: 768px) {
   .right-panel .back-button {
+    top: 10px;
+    left: 10px;
     font-size: 14px;
-    margin-bottom: 5px;
   }
 }
+
+/* Оранжевая кнопка "Проверить решение" */
+.right-panel {
+  position: relative; /* Добавляем для правильного позиционирования */
+}
+
+.check-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: #e68a00;
+}
+
