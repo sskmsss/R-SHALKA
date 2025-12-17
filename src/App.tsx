@@ -1,3 +1,4 @@
+// src/App.tsx
 import React from "react";
 import "./App.css";
 import { FaVk, FaTelegramPlane, FaUserCircle, FaUser } from "react-icons/fa";
@@ -7,18 +8,20 @@ import Tema from "./themes_py/Tema";
 import ArrayPage from "./themes_py/Array";
 import ListsPage from "./themes_py/Lists";
 import LoopsPage from "./themes_py/Loops";
-import Login from "./Register/Login";
-import Register from "./Register/Register";
+import Login from "./Register/Login"; 
+import Register from "./Register/Register"; 
 import TemaJs from "./theme_js/Tema_js";
 import ArrayJsPage from "./theme_js/Array_js";
 import ObjectsJsPage from "./theme_js/Objects_js";
 import LoopsJsPage from "./theme_js/Loops_js";
 
+// Компонент Home вынесен внутрь App, чтобы использовать useNavigate
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  
-  // Проверяем, авторизован ли пользователь
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  // Проверяем наличие токена в localStorage
+  const token = localStorage.getItem('access_token');
+  const isAuthenticated = !!token;
 
   return (
     <div className="container">
@@ -44,7 +47,7 @@ const Home: React.FC = () => {
           </a>
 
           {/* Условное отображение: иконка профиля или иконка входа */}
-          {user ? (
+          {isAuthenticated ? (
             <FaUserCircle
               className="icon-profile"
               style={{ cursor: "pointer" }}
@@ -81,6 +84,8 @@ const App: React.FC = () => {
         <Route path="/loops" element={<LoopsPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* Маршруты для JavaScript */}
         <Route path="/js/tema" element={<TemaJs />} />
         <Route path="/js/array" element={<ArrayJsPage />} />
         <Route path="/js/objects" element={<ObjectsJsPage />} />
