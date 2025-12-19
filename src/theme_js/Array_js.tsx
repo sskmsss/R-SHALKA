@@ -11,6 +11,7 @@ const ArrayJsPage: React.FC = () => {
   // Состояние для хранения сгенерированной задачи
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [consoleOutput, setConsoleOutput] = useState<string>("");
 
   const handleGenerateClick = async () => {
     setIsLoading(true);
@@ -32,14 +33,63 @@ const ArrayJsPage: React.FC = () => {
     navigate("/js/tema");
   };
 
+  
+  const handleRunCode = () => {
+    const codeInput = document.getElementById('js-code-input') as HTMLTextAreaElement;
+    if (!codeInput || !codeInput.value.trim()) {
+      setConsoleOutput('// Введите код для выполнения');
+      return;
+    }
+
+    const userCode = codeInput.value;
+    let output = '';
+
+    try {
+      // Безопасное окружение console
+      const safeConsole = {
+        log: (...args: any[]) => {
+          const message = args.map(arg => 
+            typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+          ).join(' ');
+          output += `<span class="console-log">console.log:</span> ${message}\n`;
+        },
+        error: (...args: any[]) => {
+          const message = args.map(arg => String(arg)).join(' ');
+          output += `<span class="console-error">ERROR:</span> ${message}\n`;
+        },
+        warn: (...args: any[]) => {
+          const message = args.map(arg => String(arg)).join(' ');
+          output += `<span class="console-warn">WARN:</span> ${message}\n`;
+        }
+      };
+
+      // Выполняем ТОЛЬКО пользовательский код — БЕЗ ТЕСТОВ!
+      const wrappedCode = `
+        (function() {
+          try {
+            ${userCode}
+          } catch (e) {
+            console.error('Исключение в коде:', e.message);
+          }
+        })();
+      `;
+
+      new Function('console', wrappedCode)(safeConsole);
+
+      // Выводим результат
+      setConsoleOutput(output || '// Код выполнен. Нет вывода в консоль.');
+
+    } catch (e: any) {
+      setConsoleOutput(`<span class="console-error">⚡ Системная ошибка: ${e.message}</span>`);
+    }
+  };
+
   return (
     <div className="array-js-container">
-      {/* Кнопка НАЗАД */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
 
-      {/* Левая часть — база по теме */}
       <div className="left-panel">
         <h1>БАЗА ПО ВЫБРАННОЙ ТЕМЕ</h1>
         <h2>МАССИВЫ (JAVASCRIPT)</h2>
@@ -53,7 +103,7 @@ const ArrayJsPage: React.FC = () => {
           <p>
             <strong>Создание массива:</strong><br />
             <pre className="code-example">
-              <code>{`// Литерал объекта
+              <code>{`// Литерал массива
 let fruits = ["яблоко", "банан", "апельсин"];
 let numbers = [1, 2, 3, 4];
 let mixed = [1, "текст", true, { name: "JS" }];`}</code>
@@ -61,14 +111,15 @@ let mixed = [1, "текст", true, { name: "JS" }];`}</code>
           </p>
 
           <p>
-            <strong>Доступ к элементам:</strong><br />
+            <strong>Доступ к элементам и методы:</strong><br />
             <pre className="code-example">
-              <code>{`user.name;        // "Анна"
-user["age"];     // 25
+              <code>{`let nums = [1, 2, 3];
+console.log(nums[0]); // 1
+console.log(nums.length); // 3
 
-// Добавление/изменение
-user.email = "anna@example.com";
-user.age = 26;`}</code>
+// Методы
+nums.push(4); // [1,2,3,4]
+let doubled = nums.map(x => x * 2); // [2,4,6,8]`}</code>
             </pre>
           </p>
 
@@ -97,11 +148,9 @@ user.age = 26;`}</code>
         </button>
       </div>
 
-      {/* Правая часть — задача */}
       <div className="right-panel">
         <h1>ЗАДАЧА</h1>
 
-        {/* Блок с задачей */}
         {task ? (
           <div className="task-placeholder">
             <h3>{task.title}</h3>
@@ -135,13 +184,28 @@ user.age = 26;`}</code>
         <div className="code-editor">
           <h3>КОД</h3>
           <textarea
-            placeholder="Напишите решение здесь..."
-            rows={15}
+            id="js-code-input"
+            placeholder="Напишите ваш код здесь. Например:&#10;console.log([1,2,3].map(x => x * 2));"
+            rows={12}
             className="code-input"
           ></textarea>
         </div>
 
-        {/* Оранжевая кнопка "Проверить решение" */}
+        {/* Оранжевая кнопка "ВЫПОЛНИТЬ КОД" — слева, под редактором */}
+        <button
+          className="run-code-btn"
+          onClick={handleRunCode}
+        >
+          ВЫПОЛНИТЬ КОД
+        </button>
+
+        {/* Консоль */}
+        <div className="console-output">
+          <h3>КОНСОЛЬ</h3>
+          <pre className="console-text" dangerouslySetInnerHTML={{ __html: consoleOutput }}></pre>
+        </div>
+
+        {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — в правом нижнем углу */}
         <button className="check-btn" onClick={handleCheckSolution}>
           ПРОВЕРИТЬ РЕШЕНИЕ
         </button>

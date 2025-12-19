@@ -9,6 +9,7 @@ const LoopsJsPage: React.FC = () => {
   const navigate = useNavigate();
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [consoleOutput, setConsoleOutput] = useState<string>("");
 
   const handleGenerateClick = async () => {
     setIsLoading(true);
@@ -35,9 +36,55 @@ const LoopsJsPage: React.FC = () => {
     navigate("/js/tema");
   };
 
+  // === Безопасное выполнение ТОЛЬКО пользовательского кода ===
+  const handleRunCode = () => {
+    const codeInput = document.getElementById('js-code-input') as HTMLTextAreaElement;
+    if (!codeInput || !codeInput.value.trim()) {
+      setConsoleOutput('// Введите код для выполнения');
+      return;
+    }
+
+    const userCode = codeInput.value;
+    let output = '';
+
+    try {
+      const safeConsole = {
+        log: (...args: any[]) => {
+          const message = args.map(arg => 
+            typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+          ).join(' ');
+          output += `<span class="console-log">console.log:</span> ${message}\n`;
+        },
+        error: (...args: any[]) => {
+          const message = args.map(arg => String(arg)).join(' ');
+          output += `<span class="console-error">ERROR:</span> ${message}\n`;
+        },
+        warn: (...args: any[]) => {
+          const message = args.map(arg => String(arg)).join(' ');
+          output += `<span class="console-warn">WARN:</span> ${message}\n`;
+        }
+      };
+
+      const wrappedCode = `
+        (function() {
+          try {
+            ${userCode}
+          } catch (e) {
+            console.error('Исключение в коде:', e.message);
+          }
+        })();
+      `;
+
+      new Function('console', wrappedCode)(safeConsole);
+      setConsoleOutput(output || '// Код выполнен. Нет вывода в консоль.');
+
+    } catch (e: any) {
+      setConsoleOutput(`<span class="console-error">⚡ Системная ошибка: ${e.message}</span>`);
+    }
+  };
+
   return (
     <div className="loops-js-container">
-      {/* Кнопка НАЗАД — в корне, как во всех страницах */}
       <button className="back-button" onClick={handleBackClick}>
         ← Назад
       </button>
@@ -147,13 +194,25 @@ for (let fruit of fruits) {
         <div className="code-editor">
           <h3>КОД</h3>
           <textarea
-            placeholder="Напишите решение здесь..."
-            rows={15}
+            id="js-code-input"
+            placeholder="Напишите ваш код здесь. Например:&#10;for (let i = 1; i <= 5; i++) console.log(i);"
+            rows={12}
             className="code-input"
           ></textarea>
         </div>
 
-        {/* Оранжевая кнопка "Проверить решение" */}
+        {/* Оранжевая кнопка "ВЫПОЛНИТЬ КОД" */}
+        <button className="run-code-btn" onClick={handleRunCode}>
+          ВЫПОЛНИТЬ КОД
+        </button>
+
+        {/* Консоль */}
+        <div className="console-output">
+          <h3>КОНСОЛЬ</h3>
+          <pre className="console-text" dangerouslySetInnerHTML={{ __html: consoleOutput }}></pre>
+        </div>
+
+        {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" */}
         <button className="check-btn" onClick={handleCheckSolution}>
           ПРОВЕРИТЬ РЕШЕНИЕ
         </button>

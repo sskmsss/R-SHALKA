@@ -225,3 +225,82 @@
     font-size: 0.9rem;
   }
 }
+
+/* === Кнопка ВЫПОЛНИТЬ КОД === */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
+
+/* === Консоль === */
+.console-output {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  height: 150px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  border: 1px solid #3c3c3c;
+}
+
+.console-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.console-log { color: #4ec9b0; }
+.console-error { color: #f48771; }
+.console-warn { color: #dcdcaa; }
+
+/* === Кнопка ПРОВЕРИТЬ РЕШЕНИЕ — в углу === */
+.right-panel {
+  position: relative;
+}
+
+.right-panel .check-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #2eaf65;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.right-panel .check-btn:hover {
+  background: #1f8d50;
+}
+
+@media (max-width: 768px) {
+  .right-panel {
+    padding-bottom: 80px;
+  }
+  .right-panel .check-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+}

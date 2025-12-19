@@ -224,3 +224,106 @@
     font-size: 0.9rem;
   }
 }
+
+/* === Консоль выполнения === */
+.console-output {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  height: 150px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  border: 1px solid #3c3c3c;
+}
+
+.console-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.console-log {
+  color: #4ec9b0;
+}
+.console-error {
+  color: #f48771;
+}
+.console-warn {
+  color: #dcdcaa;
+}
+
+/* Стили для двух кнопок */
+.check-btn {
+  background: #2eaf65;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: #1f8d50;
+}
+
+/* Оранжевая кнопка — переопределяем цвет */
+.right-panel .check-btn:first-child {
+  background: #ff9800;
+  margin-top: 10px;
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.right-panel .check-btn:first-child:hover {
+  background: #e68a00;
+}
+
+/* Кнопка "Проверить решение" — в правом нижнем углу */
+.right-panel .check-btn:last-child {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #2eaf65;
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+/* Для адаптивности */
+@media (max-width: 768px) {
+  .right-panel {
+    position: relative;
+    padding-bottom: 80px; /* место для фиксированной кнопки */
+  }
+  .right-panel .check-btn:last-child {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+}
+
+/* Новая кнопка "Выполнить код" — под редактором */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
