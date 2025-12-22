@@ -19,13 +19,14 @@ const ArrayPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState<string>("");
   const [isPyodideReady, setIsPyodideReady] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   // Загрузка Pyodide при первом рендере
   useEffect(() => {
     const loadPyodide = async () => {
       try {
         const pyodideInstance = await window.loadPyodide!({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/" // УБРАНЫ ПРОБЕЛЫ
+          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
         });
 
         // Создаем глобальный объект __console__ и передаем его в Pyodide
@@ -72,7 +73,7 @@ const ArrayPage: React.FC = () => {
 
     // Если нет — загружаем скрипт Pyodide.js
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js'; // УБРАНЫ ПРОБЕЛЫ
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
     script.async = true;
     script.onload = () => {
       if (window.loadPyodide && typeof window.loadPyodide === 'function') {
@@ -103,7 +104,7 @@ const ArrayPage: React.FC = () => {
       return;
     }
 
-    const timestamp = new  Date().toLocaleTimeString();
+    const timestamp = new Date().toLocaleTimeString();
     const prefix = `<span class="timestamp">[${timestamp}]</span> <span class="${type}">${type.toUpperCase()}:</span>`;
     setConsoleOutput(prev => {
       // Ограничиваем размер консоли для предотвращения переполнения памяти
@@ -129,8 +130,56 @@ const ArrayPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleCheckSolution = () => {
-    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  // НОВАЯ РЕАЛИЗАЦИЯ: отправка кода на бэкенд
+  const handleCheckSolution = async () => {
+    if (!task) {
+      alert("Сначала сгенерируйте задачу");
+      return;
+    }
+
+    const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
+    if (!codeInput || !codeInput.value.trim()) {
+      alert("Напишите решение перед проверкой");
+      return;
+    }
+
+    setIsChecking(true);
+    setConsoleOutput("Отправка кода на проверку...");
+
+    try {
+      const response = await fetch('https://elodia-autotomic-magdalena.ngrok-free.dev/api/tasks/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          task_id: task.id,
+          user_code: codeInput.value
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Формируем вывод в консоль
+        let output = "";
+        if (result.result === "success") {
+          output = `✅ Решение верное!\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        } else {
+          output = `❌ Решение содержит ошибки:\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        }
+        setConsoleOutput(output);
+      } else {
+        const errorData = await response.json();
+        setConsoleOutput(`⚠️ Ошибка проверки: ${errorData.detail || 'Неизвестная ошибка'}`);
+      }
+    } catch (error) {
+      console.error('Ошибка сети при проверке:', error);
+      setConsoleOutput(`⚠️ Сетевая ошибка: Проверьте подключение к серверу`);
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const handleBackClick = () => {
@@ -308,8 +357,12 @@ for num in numbers:
           </div>
 
           {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — в правом нижнем углу */}
-          <button className="check-btn" onClick={handleCheckSolution}>
-            ПРОВЕРИТЬ РЕШЕНИЕ
+          <button 
+            className="check-btn" 
+            onClick={handleCheckSolution}
+            disabled={isChecking || !task}
+          >
+            {isChecking ? "ПРОВЕРКА..." : "ПРОВЕРИТЬ РЕШЕНИЕ"}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { API_BASE_URL } from './config';
 
 export interface Task {
+  id: number;   
   title: string;
   description: string;
   example_input?: string;
