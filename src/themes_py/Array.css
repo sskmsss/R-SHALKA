@@ -217,3 +217,155 @@
   background: #e68a00;
 }
 
+/* === Консоль выполнения === */
+.console-output {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  height: 150px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  border: 1px solid #3c3c3c;
+}
+
+.console-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.console-log {
+  color: #4ec9b0;
+}
+.console-error {
+  color: #f48771;
+}
+.console-warn {
+  color: #dcdcaa;
+}
+.timestamp {
+  color: #888;
+  font-style: italic;
+}
+
+/* Кнопка "ВЫПОЛНИТЬ КОД" */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
+
+.run-code-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — в правом нижнем углу */
+.check-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #2eaf65;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: #1f8d50;
+}
+
+/* Для адаптивности */
+@media (max-width: 768px) {
+  .right-panel {
+    position: relative;
+    padding-bottom: 80px; /* место для фиксированной кнопки */
+  }
+  .run-code-btn {
+    width: 100%;
+    margin-top: 15px;
+  }
+  .check-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+}
+
+/* === Прокручиваемая правая панель === */
+.right-panel {
+  position: relative;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.right-panel-content {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Для WebKit-браузеров (Chrome, Safari) */
+.right-panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.right-panel-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.right-panel-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.right-panel-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Стили для кнопки выполнения кода */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
+
+.run-code-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

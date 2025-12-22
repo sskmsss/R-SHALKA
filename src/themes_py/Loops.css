@@ -273,3 +273,113 @@
     font-size: 0.9rem;
   }
 }
+
+/* === Консоль выполнения === */
+.console-output {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  height: 150px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  border: 1px solid #3c3c3c;
+}
+
+.console-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.console-log {
+  color: #4ec9b0;
+}
+.console-error {
+  color: #f48771;
+}
+.console-warn {
+  color: #dcdcaa;
+}
+
+/* Кнопка выполнения кода */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
+
+.run-code-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* === Прокручиваемая правая панель === */
+.right-panel {
+  position: relative;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.right-panel-content {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Для WebKit-браузеров (Chrome, Safari) */
+.right-panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.right-panel-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.right-panel-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.right-panel-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Стили для кнопки выполнения кода */
+.run-code-btn {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.run-code-btn:hover {
+  background: #e68a00;
+}
+
+.run-code-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
