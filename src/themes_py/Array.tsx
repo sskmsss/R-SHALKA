@@ -143,20 +143,28 @@ const ArrayPage: React.FC = () => {
       return;
     }
 
+    // Убедимся, что у задачи есть id
+    const taskId = (task as any).id || task.title; // fallback на title если id нет
+
     setIsChecking(true);
     setConsoleOutput("Отправка кода на проверку...");
 
     try {
+      // Формируем JSON-объект с данными
+      const submissionData = {
+        task_id: taskId,
+        language: "python",
+        user_code: codeInput.value,
+        timestamp: new Date().toISOString()
+      };
+
       const response = await fetch('https://elodia-autotomic-magdalena.ngrok-free.dev/api/tasks/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
-        body: JSON.stringify({
-          task_id: task.id,
-          user_code: codeInput.value
-        })
+        body: JSON.stringify(submissionData)
       });
 
       if (response.ok) {
@@ -164,7 +172,8 @@ const ArrayPage: React.FC = () => {
         
         // Формируем вывод в консоль
         let output = "";
-        if (result.result === "success") {
+        // Исправление: теперь проверяем "passed" вместо "success"
+        if (result.result === "passed") {
           output = `✅ Решение верное!\n${result.explanation}\n\nВывод: ${result.execution_output}`;
         } else {
           output = `❌ Решение содержит ошибки:\n${result.explanation}\n\nВывод: ${result.execution_output}`;
@@ -187,49 +196,61 @@ const ArrayPage: React.FC = () => {
   };
 
   const handleRunCode = async () => {
-    if (!isPyodideReady) {
-      setConsoleOutput('⏳ Загрузка Python среды. Пожалуйста, подождите...');
-      return;
-    }
+  if (!isPyodideReady) {
+    setConsoleOutput('⏳ Загрузка Python среды. Пожалуйста, подождите...');
+    return;
+  }
 
-    const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
-    if (!codeInput || !codeInput.value.trim()) {
-      setConsoleOutput('// Введите код для выполнения');
-      return;
-    }
+  const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
+  if (!codeInput || !codeInput.value.trim()) {
+    setConsoleOutput('// Введите код для выполнения');
+    return;
+  }
 
-    const userCode = codeInput.value;
-    setConsoleOutput(prev => prev + '\n>>> Выполнение кода...\n');
+  const userCode = codeInput.value;
+  setConsoleOutput(prev => prev + '\n>>> Выполнение кода...\n');
 
-    try {
-      // Оборачиваем код с безопасным print
-      const wrappedCode = `
+  try {
+    // Универсальная обёртка для всех тем
+    const wrappedCode = `
 def safe_print(*args, sep=' ', end='\\n', file=None):
-    """Безопасная замена print для Pyodide"""
     import sys
     output = sep.join(map(str, args)) + end
-    # Отправляем в нашу консоль
     __console__.log(output)
 
-# Переопределяем print
 import builtins
 builtins.print = safe_print
+
+# Универсальная эмуляция input() для всех задач
+_input_values = ["1", "2", "3", "0", "стоп", "выход"]
+_input_index = 0
+
+def mock_input(prompt=""):
+    global _input_index
+    if _input_index < len(_input_values):
+        value = _input_values[_input_index]
+        _input_index += 1
+        __console__.log(f">>> {prompt}{value}")
+        return value
+    __console__.warn("⚠️ Ввод исчерпан. Используйте значения из примеров задачи.")
+    return ""
+
+builtins.input = mock_input
 
 try:
 ${userCode.split('\n').map(line => '    ' + line).join('\n')}
 except Exception as e:
-    __console__.error(f"❌ Исключение: {str(e)}")
+    __console__.error(f"❌ Ошибка: {str(e)}")
     import traceback
     __console__.error(traceback.format_exc())
-      `;
+    `;
 
-      // Выполняем код
-      await window.pyodide!.runPythonAsync(wrappedCode);
+    await window.pyodide!.runPythonAsync(wrappedCode);
 
-    } catch (e: any) {
-      handleConsoleOutput(`⚡ Системная ошибка: ${e.message || e}`, 'error');
-    }
-  };
+  } catch (e: any) {
+    handleConsoleOutput(`⚡ Ошибка выполнения: ${e.message || e}`, 'error');
+  }
+};
 
   return (
     <div className="array-container">

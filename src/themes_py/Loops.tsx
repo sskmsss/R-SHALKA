@@ -19,13 +19,14 @@ const LoopsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState<string>("");
   const [isPyodideReady, setIsPyodideReady] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   // Загрузка Pyodide при первом рендере
   useEffect(() => {
     const loadPyodide = async () => {
       try {
         const pyodideInstance = await window.loadPyodide!({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/" // УБРАНЫ ПРОБЕЛЫ
+          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/  "
         });
 
         // Создаем глобальный объект __console__ и передаем его в Pyodide
@@ -72,7 +73,7 @@ const LoopsPage: React.FC = () => {
 
     // Если нет — загружаем скрипт Pyodide.js
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js'; // УБРАНЫ ПРОБЕЛЫ
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js  ';
     script.async = true;
     script.onload = () => {
       if (window.loadPyodide && typeof window.loadPyodide === 'function') {
@@ -129,8 +130,65 @@ const LoopsPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleCheckSolution = () => {
-    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  // НОВАЯ РЕАЛИЗАЦИЯ: отправка кода на бэкенд (точно как в Array.tsx)
+  const handleCheckSolution = async () => {
+    if (!task) {
+      alert("Сначала сгенерируйте задачу");
+      return;
+    }
+
+    const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
+    if (!codeInput || !codeInput.value.trim()) {
+      alert("Напишите решение перед проверкой");
+      return;
+    }
+
+    // Убедимся, что у задачи есть id
+    const taskId = (task as any).id || task.title; // fallback на title если id нет
+
+    setIsChecking(true);
+    setConsoleOutput("Отправка кода на проверку...");
+
+    try {
+      // Формируем JSON-объект с данными
+      const submissionData = {
+        task_id: taskId,
+        language: "python",
+        user_code: codeInput.value,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch('https://elodia-autotomic-magdalena.ngrok-free.dev/api/tasks/submit  ', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Формируем вывод в консоль
+        let output = "";
+        // Исправление: теперь проверяем "passed" вместо "success"
+        if (result.result === "passed") {
+          output = `✅ Решение верное!\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        } else {
+          output = `❌ Решение содержит ошибки:\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        }
+        setConsoleOutput(output);
+      } else {
+        const errorData = await response.json();
+        setConsoleOutput(`⚠️ Ошибка проверки: ${errorData.detail || 'Неизвестная ошибка'}`);
+      }
+    } catch (error) {
+      console.error('Ошибка сети при проверке:', error);
+      setConsoleOutput(`⚠️ Сетевая ошибка: Проверьте подключение к серверу`);
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const handleBackClick = () => {
@@ -138,49 +196,61 @@ const LoopsPage: React.FC = () => {
   };
 
   const handleRunCode = async () => {
-    if (!isPyodideReady) {
-      setConsoleOutput('⏳ Загрузка Python среды. Пожалуйста, подождите...');
-      return;
-    }
+  if (!isPyodideReady) {
+    setConsoleOutput('⏳ Загрузка Python среды. Пожалуйста, подождите...');
+    return;
+  }
 
-    const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
-    if (!codeInput || !codeInput.value.trim()) {
-      setConsoleOutput('// Введите код для выполнения');
-      return;
-    }
+  const codeInput = document.querySelector('.code-input') as HTMLTextAreaElement;
+  if (!codeInput || !codeInput.value.trim()) {
+    setConsoleOutput('// Введите код для выполнения');
+    return;
+  }
 
-    const userCode = codeInput.value;
-    setConsoleOutput(prev => prev + '\n>>> Выполнение кода...\n');
+  const userCode = codeInput.value;
+  setConsoleOutput(prev => prev + '\n>>> Выполнение кода...\n');
 
-    try {
-      // Оборачиваем код с безопасным print
-      const wrappedCode = `
+  try {
+    // Универсальная обёртка для всех тем
+    const wrappedCode = `
 def safe_print(*args, sep=' ', end='\\n', file=None):
-    """Безопасная замена print для Pyodide"""
     import sys
     output = sep.join(map(str, args)) + end
-    # Отправляем в нашу консоль
     __console__.log(output)
 
-# Переопределяем print
 import builtins
 builtins.print = safe_print
+
+# Универсальная эмуляция input() для всех задач
+_input_values = ["1", "2", "3", "0", "стоп", "выход"]
+_input_index = 0
+
+def mock_input(prompt=""):
+    global _input_index
+    if _input_index < len(_input_values):
+        value = _input_values[_input_index]
+        _input_index += 1
+        __console__.log(f">>> {prompt}{value}")
+        return value
+    __console__.warn("⚠️ Ввод исчерпан. Используйте значения из примеров задачи.")
+    return ""
+
+builtins.input = mock_input
 
 try:
 ${userCode.split('\n').map(line => '    ' + line).join('\n')}
 except Exception as e:
-    __console__.error(f"❌ Исключение: {str(e)}")
+    __console__.error(f"❌ Ошибка: {str(e)}")
     import traceback
     __console__.error(traceback.format_exc())
-      `;
+    `;
 
-      // Выполняем код
-      await window.pyodide!.runPythonAsync(wrappedCode);
+    await window.pyodide!.runPythonAsync(wrappedCode);
 
-    } catch (e: any) {
-      handleConsoleOutput(`⚡ Системная ошибка: ${e.message || e}`, 'error');
-    }
-  };
+  } catch (e: any) {
+    handleConsoleOutput(`⚡ Ошибка выполнения: ${e.message || e}`, 'error');
+  }
+};
 
   return (
     <div className="loops-container">
@@ -313,9 +383,13 @@ while count < 3:
             <pre className="console-text" dangerouslySetInnerHTML={{ __html: consoleOutput }}></pre>
           </div>
 
-          {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" */}
-          <button className="check-btn" onClick={handleCheckSolution}>
-            ПРОВЕРИТЬ РЕШЕНИЕ
+          {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — с состоянием */}
+          <button 
+            className="check-btn" 
+            onClick={handleCheckSolution}
+            disabled={isChecking || !task}
+          >
+            {isChecking ? "ПРОВЕРКА..." : "ПРОВЕРИТЬ РЕШЕНИЕ"}
           </button>
         </div>
       </div>
