@@ -12,6 +12,7 @@ const ArrayJsPage: React.FC = () => {
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState<string>("");
+  const [isChecking, setIsChecking] = useState(false); // Новое состояние для проверки
 
   const handleGenerateClick = async () => {
     setIsLoading(true);
@@ -25,8 +26,64 @@ const ArrayJsPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleCheckSolution = () => {
-    alert("Проверка решения... Пока что это заглушка, но скоро будет ИИ-проверка!");
+  // ✅ ОСНОВНАЯ ФУНКЦИЯ: ПОЛНАЯ ПРОВЕРКА РЕШЕНИЯ (как в Array.tsx)
+  const handleCheckSolution = async () => {
+    if (!task) {
+      alert("Сначала сгенерируйте задачу");
+      return;
+    }
+
+    const codeInput = document.getElementById('js-code-input') as HTMLTextAreaElement;
+    if (!codeInput || !codeInput.value.trim()) {
+      alert("Напишите решение перед проверкой");
+      return;
+    }
+
+    // Убедимся, что у задачи есть id (fallback на title если нет)
+    const taskId = (task as any).id || task.title;
+
+    setIsChecking(true);
+    setConsoleOutput("Отправка кода на проверку...");
+
+    try {
+      // Формируем JSON-объект с данными
+      const submissionData = {
+        task_id: taskId,
+        language: "javascript",
+        user_code: codeInput.value,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch('https://elodia-autotomic-magdalena.ngrok-free.dev/api/tasks/submit  ', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // ✅ КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: проверяем "passed", а не "success"
+        let output = "";
+        if (result.result === "passed") {
+          output = `✅ Решение верное!\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        } else {
+          output = `❌ Решение содержит ошибки:\n${result.explanation}\n\nВывод: ${result.execution_output}`;
+        }
+        setConsoleOutput(output);
+      } else {
+        const errorData = await response.json();
+        setConsoleOutput(`⚠️ Ошибка проверки: ${errorData.detail || 'Неизвестная ошибка'}`);
+      }
+    } catch (error) {
+      console.error('Ошибка сети при проверке:', error);
+      setConsoleOutput(`⚠️ Сетевая ошибка: Проверьте подключение к серверу`);
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const handleBackClick = () => {
@@ -148,67 +205,74 @@ let doubled = nums.map(x => x * 2); // [2,4,6,8]`}</code>
         </button>
       </div>
 
+      {/* Правая панель с прокруткой (как в Python) */}
       <div className="right-panel">
-        <h1>ЗАДАЧА</h1>
+        <div className="right-panel-content"> {/* Обёртка для прокрутки */}
+          <h1>ЗАДАЧА</h1>
 
-        {task ? (
-          <div className="task-placeholder">
-            <h3>{task.title}</h3>
-            <p>{task.description}</p>
+          {task ? (
+            <div className="task-placeholder">
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
 
-            {task.example_input && task.example_output && (
-              <div className="task-examples">
-                <h4>Примеры:</h4>
-                <div className="example">
-                  <strong>Ввод:</strong> <code>{task.example_input}</code>
+              {task.example_input && task.example_output && (
+                <div className="task-examples">
+                  <h4>Примеры:</h4>
+                  <div className="example">
+                    <strong>Ввод:</strong> <code>{task.example_input}</code>
+                  </div>
+                  <div className="example">
+                    <strong>Вывод:</strong> <code>{task.example_output}</code>
+                  </div>
                 </div>
-                <div className="example">
-                  <strong>Вывод:</strong> <code>{task.example_output}</code>
+              )}
+
+              {task.hint && (
+                <div className="task-hint">
+                  <h4>Подсказка:</h4>
+                  <p>{task.hint}</p>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          ) : (
+            <div className="task-placeholder">
+              <p>Нажмите «Генерация задачи», чтобы получить новую задачу.</p>
+            </div>
+          )}
 
-            {task.hint && (
-              <div className="task-hint">
-                <h4>Подсказка:</h4>
-                <p>{task.hint}</p>
-              </div>
-            )}
+          <div className="code-editor">
+            <h3>КОД</h3>
+            <textarea
+              id="js-code-input"
+              placeholder="Напишите ваш код здесь. Например:&#10;console.log([1,2,3].map(x => x * 2));"
+              rows={12}
+              className="code-input"
+            ></textarea>
           </div>
-        ) : (
-          <div className="task-placeholder">
-            <p>Нажмите «Генерация задачи», чтобы получить новую задачу.</p>
+
+          {/* Оранжевая кнопка "ВЫПОЛНИТЬ КОД" — слева, под редактором */}
+          <button
+            className="run-code-btn"
+            onClick={handleRunCode}
+          >
+            ВЫПОЛНИТЬ КОД
+          </button>
+
+          {/* Консоль */}
+          <div className="console-output">
+            <h3>КОНСОЛЬ</h3>
+            <pre className="console-text" dangerouslySetInnerHTML={{ __html: consoleOutput }}></pre>
           </div>
-        )}
 
-        <div className="code-editor">
-          <h3>КОД</h3>
-          <textarea
-            id="js-code-input"
-            placeholder="Напишите ваш код здесь. Например:&#10;console.log([1,2,3].map(x => x * 2));"
-            rows={12}
-            className="code-input"
-          ></textarea>
+          {/* ✅ Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — с состоянием */}
+          <button 
+            className="check-btn" 
+            onClick={handleCheckSolution}
+            disabled={isChecking || !task}
+          >
+            {isChecking ? "ПРОВЕРКА..." : "ПРОВЕРИТЬ РЕШЕНИЕ"}
+          </button>
         </div>
-
-        {/* Оранжевая кнопка "ВЫПОЛНИТЬ КОД" — слева, под редактором */}
-        <button
-          className="run-code-btn"
-          onClick={handleRunCode}
-        >
-          ВЫПОЛНИТЬ КОД
-        </button>
-
-        {/* Консоль */}
-        <div className="console-output">
-          <h3>КОНСОЛЬ</h3>
-          <pre className="console-text" dangerouslySetInnerHTML={{ __html: consoleOutput }}></pre>
-        </div>
-
-        {/* Зелёная кнопка "ПРОВЕРИТЬ РЕШЕНИЕ" — в правом нижнем углу */}
-        <button className="check-btn" onClick={handleCheckSolution}>
-          ПРОВЕРИТЬ РЕШЕНИЕ
-        </button>
       </div>
     </div>
   );
